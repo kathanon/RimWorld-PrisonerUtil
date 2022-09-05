@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<Defs>
+
+  <JobDef>
+    <defName>kathanon-PrisonerUtil-DressPrisoner</defName>
+    <driverClass>PrisonerUtil.JobDriver_DressPrisoner</driverClass>
+    <reportString>dressing prisoner.</reportString>
+    <allowOpportunisticPrefix>true</allowOpportunisticPrefix>
+    <carryThingAfterJob>true</carryThingAfterJob>
+  </JobDef>
+
+</Defs>

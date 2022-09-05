@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<LanguageData>
+    <!-- UI -->
+	<kathanon.PrisonerUtil.SetOwnerPrisoner.desc>Assign this bed to a specific prisoner.</kathanon.PrisonerUtil.SetOwnerPrisoner.desc>
+	<kathanon.PrisonerUtil.ReservedForPrisoner.title>Reserved for Prisoners</kathanon.PrisonerUtil.ReservedForPrisoner.title>
+	<kathanon.PrisonerUtil.ReservedForPrisoner.desc>Toggles if this is reserved for the use of prisoners.</kathanon.PrisonerUtil.ReservedForPrisoner.desc>
+  
+	<!-- Settings -->
+	<kathanon.PrisonerUtil.InitModeStranger.title>Default interaction: Stranger</kathanon.PrisonerUtil.InitModeStranger.title>
+	<kathanon.PrisonerUtil.InitModeStranger.desc>When taking a stranger prisoner, they will initially be set to this prisoner interaction.</kathanon.PrisonerUtil.InitModeStranger.desc>
+	<kathanon.PrisonerUtil.InitModeColonist.title>Default interaction: Colonist</kathanon.PrisonerUtil.InitModeColonist.title>
+	<kathanon.PrisonerUtil.InitModeColonist.desc>When taking a colonist prisoner, they will initially be set to this prisoner interaction.</kathanon.PrisonerUtil.InitModeColonist.desc>
+	<kathanon.PrisonerUtil.InitModeSlave.title>Default interaction: Slave</kathanon.PrisonerUtil.InitModeSlave.title>
+	<kathanon.PrisonerUtil.InitModeSlave.desc>When taking a slave prisoner, they will initially be set to this prisoner interaction.</kathanon.PrisonerUtil.InitModeSlave.desc>
+</LanguageData>
