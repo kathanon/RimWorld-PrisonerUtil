@@ -1,6 +1,19 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <Defs>
 
+  <WorkGiverDef>
+    <defName>kathanon-PrisonerUtil-DressPrisoner</defName>
+    <label>dress prisoners</label>
+    <giverClass>PrisonerUtil.WorkGiver_Warden_Dress</giverClass>
+    <workType>Warden</workType>
+    <verb>dress</verb>
+    <gerund>dressing</gerund>
+    <priorityInType>50</priorityInType>
+    <requiredCapacities>
+      <li>Manipulation</li>
+    </requiredCapacities>
+  </WorkGiverDef>
+
   <JobDef>
     <defName>kathanon-PrisonerUtil-DressPrisoner</defName>
     <driverClass>PrisonerUtil.JobDriver_DressPrisoner</driverClass>

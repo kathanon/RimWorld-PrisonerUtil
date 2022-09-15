@@ -5,10 +5,18 @@
 	<supportedVersions>
 		<li>1.3</li>
 	</supportedVersions>
-	<description></description>
+	<description>A collection of quality of life improvements related to the handling of prisoners.
+    
+Features:
+ * A new prisoner interaction "Convert, then recruit", that first converts the prisoner to your ideoligion, then tries to recruit them.
+ * Option to select the default interaction for new prisoners, separately for strangers, colonists and slaves.
+ * Lets you set the interaction for the prisoner directly when ordering a pawn to capture them (it is a separate menu option).
+ * Allows you to assign prisoner beds to specific prisoners.
+ * Allows you to select a stack of meals in a cell and set it as not being reserved for prisoners.
+ * Lets you designate a prisoner to be dressed in specific items of clothing. Available either by selecting the prisoner or the item of clothing.
+</description>
 	<url>https://github.com/kathanon/RimWorld-PrisonerUtil</url>
 
-<!--
 	<modDependencies>
 		<li>
 			<packageId>UnlimitedHugs.HugsLib</packageId>
@@ -20,5 +28,4 @@
 	<loadAfter>
 		<li>UnlimitedHugs.HugsLib</li>
 	</loadAfter>
--->
 </ModMetaData>

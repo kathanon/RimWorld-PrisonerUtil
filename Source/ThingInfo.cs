@@ -29,6 +29,7 @@ namespace PrisonerUtil {
 
         [HarmonyPostfix]
         public static string GetInspectString(string original, Thing __instance) {
+            if (!InfoLines.Any()) return original;
             var buf = new StringBuilder();
             foreach (var line in InfoLines) {
                 line.Invoke(__instance, buf);

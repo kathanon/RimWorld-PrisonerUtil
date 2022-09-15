@@ -9,6 +9,8 @@ using Verse;
 namespace PrisonerUtil {
     public static class Resources {
         public static readonly Texture2D PrisonerIcon =
-            ContentFinder<Texture2D>.Get("UI/Commands/ForPrisoners");
+            ContentFinder<Texture2D>.Get(Strings.ForPrisonersTexturePath);
+        public static readonly Texture2D Arrow =
+            ContentFinder<Texture2D>.Get(Strings.ArrowTexturePath);
     }
 }

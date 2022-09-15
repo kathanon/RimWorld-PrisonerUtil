@@ -13,11 +13,6 @@ namespace PrisonerUtil {
         /* TODO: 
          * - Gizmo on prisoner - target for clothing, right-click menu   -> needs polish
          * - Gizmo on clothing - target for prisoners, right-click menu  -> needs polish
-         * - Select prisoner, right-click clothing
-         * - Select clothing, right-click prisoner
-         * - Right-click prisoner, select "Dress in" - menu with clothing
-         * - Right-click clothing, select "Put on prisoner" - menu with prisoners
-         * For the last 2, if warden is selected, also prioritize the task
          */
 
         [HarmonyPostfix]
@@ -26,13 +21,13 @@ namespace PrisonerUtil {
             result.Concat(
                 __instance.AllComps
                 .OfType<CompDressPrisoner>()
-                .Select(DressPrisoner_Gizmo.For));
+                .SelectMany(CompDressPrisoner.GizmosFor));
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(ThingWithComps), nameof(ThingWithComps.GetGizmos))]
         public static IEnumerable<Gizmo> ApparelGizmos(IEnumerable<Gizmo> result, ThingWithComps __instance) {
             if (__instance is Apparel a && a.Map.mapPawns.PrisonersOfColonyCount > 0) {
-                result = result.Concat(DressPrisoner_Gizmo.For(a));
+                result = result.Concat(DressPrisoner_Gizmos.For(a));
             }
             return result;
         }

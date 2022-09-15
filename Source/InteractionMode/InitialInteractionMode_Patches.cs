@@ -4,6 +4,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Verse;
 using Verse.AI;
@@ -13,6 +14,24 @@ namespace PrisonerUtil {
     public static class InitialInteractionMode_Patches {
         private static bool takeToBedActive = false;
         private static bool setGuestStatusActive = false;
+
+        private static Regex arrestRegex;
+        private static Regex captureRegex;
+        private static readonly List<PrisonerInteractionModeDef> interactions =
+            DefDatabase<PrisonerInteractionModeDef>.AllDefs.OrderBy(m => m.listOrder).ToList();
+
+        private static Regex ArrestRegex  => MakeRegex("TryToArrest", ref arrestRegex);
+        private static Regex CaptureRegex => MakeRegex("Capture",     ref captureRegex);
+
+        private static Regex MakeRegex(string key, ref Regex variable) {
+            if (variable == null) {
+                var raw = key.Translate().RawText;
+                int tag = raw.IndexOf("{");
+                var pattern = (tag >= 0) ? raw.Substring(0, tag) : raw;
+                variable = new Regex("^" + pattern);
+            }
+            return variable;
+        }
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(JobDriver_TakeToBed), "CheckMakeTakeePrisoner")]
@@ -52,8 +71,25 @@ namespace PrisonerUtil {
             }
         }
 
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
+        public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts) {
+            for (int i = 0; i < opts.Count; i++) {
+                var option = opts[i];
+                if (ArrestRegex.IsMatch(option.Label)) {
+                    opts.Insert(++i, new FloatMenuOption(Strings.ArrestAndSet,  DoInteractionMenu, MenuOptionPriority.RescueOrCapture));
+                } else if (CaptureRegex.IsMatch(option.Label)) {
+                    opts.Insert(++i, new FloatMenuOption(Strings.CaptureAndSet, DoInteractionMenu, MenuOptionPriority.High));
+                }
+            }
+        }
+
+        private static void DoInteractionMenu() {
+            FloatMenuUtility.MakeMenu(interactions, m => m.LabelCap, m => () => { });
+        }
+
         private static void SetInitialInteractionMode(Pawn pawn) {
-            PrisonerInteractionModeDef mode = null;
+            PrisonerInteractionModeDef mode;
             if (pawn.IsSlave) {
                 mode = Options.InitialInteractionModeSlave;
             } else if (pawn.IsColonist) {

@@ -63,7 +63,7 @@
     <Compile Include="DressPrisoner\AddCompDress_Patches.cs" />
     <Compile Include="AssignBed_Patches.cs" />
     <Compile Include="DressPrisoner\CompDressPrisoner.cs" />
-    <Compile Include="DressPrisoner\DressPrisoner_Gizmo.cs" />
+    <Compile Include="DressPrisoner\DressPrisoner_Gizmos.cs" />
     <Compile Include="DressPrisoner\DressPrisoner_Patches.cs" />
     <Compile Include="InteractionMode\InitialInteractionMode_Patches.cs" />
     <Compile Include="DressPrisoner\JobDriver_DressPrisoner.cs" />

@@ -28,14 +28,20 @@ namespace PrisonerUtil
 
         private static void SetupThingInfo() {
             ThingInfo.Add<Thing>(t => $"{t.def.defName} at {t.Position}");
-            ThingInfo.Add<Pawn>(p => $"DressPrisoner: {p.TryGetComp<CompDressPrisoner>()}");
         }
 
-        /* TODO: 
-         * - Option to select default interaction for new prisoners - done
-         * - Assign prisoner beds - done
-         * - Unmark prisoner meals - done
+        /* DONE: 
+         * - "Convert, then recruit" interaction
+         * - Option to select default interaction for new prisoners
+         * - Assign prisoner beds
+         * - Unmark prisoner meals
          * - Put apparel on prisoner
+         * - Setup string translation
+         * 
+         * TODO:
+         * - Add menu option to also set prisoner interaction when arresting/capturing (in progress)
+         * - Add negative thought and/or chance of altercation when dressing?
+         * - Description (done), preview, etc
          */
     }
 }
