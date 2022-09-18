@@ -10,6 +10,7 @@ using Verse;
 namespace PrisonerUtil {
     public class CompDressPrisoner : ThingComp {
         private List<Apparel> queue = new List<Apparel>();
+        public Pawn lastDresser;
 
         private static readonly Dictionary<Apparel, CompDressPrisoner> allQueued = 
             new Dictionary<Apparel, CompDressPrisoner>();
@@ -24,16 +25,20 @@ namespace PrisonerUtil {
 
         public static bool JobOn(Pawn pawn, Thing t) {
             if (jobOn.Contains(t)) {
-                Thing t2 = null;
-                if (t is Pawn prisoner) {
-                    t2 = prisoner.TryGetComp<CompDressPrisoner>()?.Next;
-                } else if (t is Apparel apparel && allQueued.TryGetValue(apparel, out var comp)) {
-                    t2 = comp.parent;
+                Pawn prisoner = null;
+                Apparel apparel = null;
+                if (t is Pawn p) {
+                    prisoner = p;
+                    apparel = p.TryGetComp<CompDressPrisoner>()?.Next;
+                } else if (t is Apparel item && allQueued.TryGetValue(item, out var comp)) {
+                    apparel = item;
+                    prisoner = comp.parent as Pawn;
                 }
                 var manager = t.Map.reservationManager;
-                return t2 != null &&
-                    manager.CanReserve(pawn, t) &&
-                    manager.CanReserve(pawn, t2);
+                return prisoner != null && apparel != null &&
+                    !prisoner.InAggroMentalState &&
+                    manager.CanReserve(pawn, prisoner) &&
+                    manager.CanReserve(pawn, apparel);
             }
             return false;
         }

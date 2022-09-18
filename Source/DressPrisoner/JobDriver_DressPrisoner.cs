@@ -10,6 +10,11 @@ using Verse.Sound;
 
 namespace PrisonerUtil {
     public class JobDriver_DressPrisoner : JobDriver {
+        private static readonly ThoughtDef wasDressedThought = 
+            DefDatabase<ThoughtDef>.GetNamed("kathanon-PrisonerUtil-ForciblyDressed");
+        private static readonly MentalStateDef attackDresser = 
+            DefDatabase<MentalStateDef>.GetNamed("kathanon-PrisonerUtil-AttackDresser");
+
         private const TargetIndex PrisonerInd = TargetIndex.A;
 
         private const TargetIndex ClothingInd = TargetIndex.B;
@@ -32,38 +37,55 @@ namespace PrisonerUtil {
         }
 
         protected override IEnumerable<Toil> MakeNewToils() {
-            var target = Prisoner;
-            var item = Clothing;
-            var comp = DressComp;
-
             this.FailOnDestroyedOrNull(ClothingInd);
             this.FailOnBurningImmobile(ClothingInd);
             this.FailOnForbidden(ClothingInd);
             this.FailOnDestroyedOrNull(PrisonerInd);
             this.FailOnAggroMentalState(PrisonerInd);
             this.FailOnForbidden(PrisonerInd);
-            this.FailOn(() => !(DressComp?.Has(item) ?? false));
+            this.FailOn(() => !(DressComp?.Has(Clothing) ?? false));
 
             yield return Toils_Goto.GotoThing(ClothingInd, PathEndMode.ClosestTouch)
                 .FailOnDespawnedNullOrForbidden(ClothingInd);
             yield return Toils_Haul.StartCarryThing(ClothingInd);
             yield return Toils_Goto.GotoThing(PrisonerInd, PathEndMode.ClosestTouch);
-
-            yield return new Toil {
-                tickAction = UnequipAndDelay,
-                defaultCompleteMode = ToilCompleteMode.Delay,
-                defaultDuration = Duration,
-            }.WithProgressBarToilDelay(PrisonerInd);
-
-            yield return Toils_General.Do(delegate {
-                pawn.carryTracker.TryDropCarriedThing(target.Position, ThingPlaceMode.Near, out var _);
-                target.apparel.Wear(item);
-                comp.Remove(item);
-            });
-
-            // TODO: Potential negative reaction?
-            // TODO: Negative thought for prisoner
+            yield return Toils_General.Do(UpdateMentalState);
+            yield return UnequipAndDelayToil;
+            yield return Toils_General.Do(EquipItem);
         }
+
+        private void UpdateMentalState() {
+            var target = Prisoner;
+
+            // Add thought
+            target.needs.mood.thoughts.memories.TryGainMemory(wasDressedThought, pawn);
+
+            // Check for violent reaction
+            var breaker = target.mindState.mentalBreaker;
+            var chance = 1f - breaker.CurMood / breaker.BreakThresholdMinor;
+            if (Rand.Chance(chance)) {
+                DressComp.lastDresser = pawn;
+                var handler = target.mindState.mentalStateHandler;
+                if (handler.TryStartMentalState(attackDresser)) {
+                    this.FailOn(() => true);
+                }
+            }
+        }
+
+        private void EquipItem() {
+            var target = Prisoner;
+            var item = Clothing;
+
+            pawn.carryTracker.TryDropCarriedThing(target.Position, ThingPlaceMode.Near, out var _);
+            target.apparel.Wear(item);
+            DressComp.Remove(item);
+        }
+
+        private Toil UnequipAndDelayToil => new Toil {
+            tickAction = UnequipAndDelay,
+            defaultCompleteMode = ToilCompleteMode.Delay,
+            defaultDuration = Duration,
+        }.WithProgressBarToilDelay(PrisonerInd);
 
         private Apparel ApparelToRemove {
             get {

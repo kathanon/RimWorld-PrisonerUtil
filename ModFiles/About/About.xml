@@ -24,8 +24,14 @@ Features:
 			<downloadUrl>https://github.com/UnlimitedHugs/RimworldHugsLib/releases/latest</downloadUrl>
 			<steamWorkshopUrl>steam://url/CommunityFilePage/818773962</steamWorkshopUrl>
 		</li>
+		<li>
+			<packageId>kathanon.FloatSubMenu</packageId>
+			<displayName>Float Sub-Menus</displayName>
+			<steamWorkshopUrl>steam://url/CommunityFilePage/2864015430</steamWorkshopUrl>
+		</li>
 	</modDependencies>
 	<loadAfter>
 		<li>UnlimitedHugs.HugsLib</li>
+		<li>kathanon.FloatSubMenu</li>
 	</loadAfter>
 </ModMetaData>

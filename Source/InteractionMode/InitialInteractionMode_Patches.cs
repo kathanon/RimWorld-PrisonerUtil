@@ -8,12 +8,19 @@ using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using Verse;
 using Verse.AI;
+using FloatSubMenus;
+using UnityEngine;
 
 namespace PrisonerUtil {
     [HarmonyPatch]
     public static class InitialInteractionMode_Patches {
         private static bool takeToBedActive = false;
         private static bool setGuestStatusActive = false;
+        private static bool getTargetActive = false;
+        private static Pawn target = null;
+
+        private static readonly Dictionary<Pawn,PrisonerInteractionModeDef> desiredModes = 
+            new Dictionary<Pawn, PrisonerInteractionModeDef>();
 
         private static Regex arrestRegex;
         private static Regex captureRegex;
@@ -73,33 +80,76 @@ namespace PrisonerUtil {
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
-        public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts) {
+        public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts, Vector3 clickPos, Pawn pawn) {
             for (int i = 0; i < opts.Count; i++) {
                 var option = opts[i];
+                string label = null;
                 if (ArrestRegex.IsMatch(option.Label)) {
-                    opts.Insert(++i, new FloatMenuOption(Strings.ArrestAndSet,  DoInteractionMenu, MenuOptionPriority.RescueOrCapture));
+                    label = Strings.ArrestAndSet;
                 } else if (CaptureRegex.IsMatch(option.Label)) {
-                    opts.Insert(++i, new FloatMenuOption(Strings.CaptureAndSet, DoInteractionMenu, MenuOptionPriority.High));
+                    label = Strings.CaptureAndSet;
+                }
+                if (label != null) {
+                    opts.Insert(++i, InteractionMenuOption(label, option.action));
                 }
             }
         }
 
-        private static void DoInteractionMenu() {
-            FloatMenuUtility.MakeMenu(interactions, m => m.LabelCap, m => () => { });
+        [HarmonyPostfix]
+        [HarmonyPatch(typeof(JobMaker), nameof(JobMaker.MakeJob), 
+            typeof(JobDef), typeof(LocalTargetInfo), typeof(LocalTargetInfo))]
+        public static void MakeJob_Post(LocalTargetInfo targetA) {
+            if (getTargetActive) {
+                target = targetA.Pawn;
+            }
+        }
+
+        private static FloatMenuOption InteractionMenuOption(string label, Action action) {
+            if (Main.VUIE_Active) {
+                return new FloatMenuOption(label + "...", () => DoInteractionMenu(action));
+            } else {
+                return new FloatSubMenu(label, InteractionOptions(action));
+            }
+        }
+
+        private static List<FloatMenuOption> InteractionOptions(Action action) =>
+            interactions
+                .Where(FilterInteraction)
+                .Select(m => InteractionMenuOption(action, m))
+                .ToList();
+
+        private static bool FilterInteraction(PrisonerInteractionModeDef mode) =>
+            mode.allowInClassicIdeoMode || !Find.IdeoManager.classicMode;
+
+        private static void DoInteractionMenu(Action action) => 
+            Find.WindowStack.Add(new FloatMenu(InteractionOptions(action)));
+
+        private static FloatMenuOption InteractionMenuOption(Action originalAction,
+                                                             PrisonerInteractionModeDef mode) {
+            Action action = delegate {
+                getTargetActive = true;
+                originalAction();
+                getTargetActive = false;
+                if (target != null) {
+                    desiredModes[target] = mode;
+                }
+            };
+            return new FloatMenuOption(mode.LabelCap, action);
         }
 
         private static void SetInitialInteractionMode(Pawn pawn) {
-            PrisonerInteractionModeDef mode;
-            if (pawn.IsSlave) {
+            if (desiredModes.TryGetValue(pawn, out var mode)) {
+                desiredModes.Remove(pawn);
+            } else if (pawn.IsSlave) {
                 mode = Options.InitialInteractionModeSlave;
             } else if (pawn.IsColonist) {
                 mode = Options.InitialInteractionModeColonist;
-            } else {
-                // Captured stranger
+            } else { // Captured stranger
                 mode = Options.InitialInteractionModeStranger;
             }
             if (mode != null) {
                 pawn.guest.interactionMode = mode;
+                InteractionModes.Update(pawn);
             }
         }
     }

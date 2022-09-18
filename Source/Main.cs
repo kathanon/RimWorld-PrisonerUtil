@@ -9,12 +9,17 @@ namespace PrisonerUtil
     public class Main : HugsLib.ModBase {
         public override string ModIdentifier => Strings.MOD_IDENTIFIER;
 
+        public static bool VUIE_Active = 
+            LoadedModManager.RunningMods
+            .Where(m => m.PackageId == Strings.VUIE_ID)
+            .Any();
+
         private static readonly CompProperties Unreserve = 
             new CompProperties(typeof(CompUnreserve));
 
         public override void DefsLoaded() {
             Options.Setup(Settings);
-            SetupThingInfo();
+            //SetupThingInfo();
             SetupDefs();
         }
 
@@ -29,19 +34,5 @@ namespace PrisonerUtil
         private static void SetupThingInfo() {
             ThingInfo.Add<Thing>(t => $"{t.def.defName} at {t.Position}");
         }
-
-        /* DONE: 
-         * - "Convert, then recruit" interaction
-         * - Option to select default interaction for new prisoners
-         * - Assign prisoner beds
-         * - Unmark prisoner meals
-         * - Put apparel on prisoner
-         * - Setup string translation
-         * 
-         * TODO:
-         * - Add menu option to also set prisoner interaction when arresting/capturing (in progress)
-         * - Add negative thought and/or chance of altercation when dressing?
-         * - Description (done), preview, etc
-         */
     }
 }

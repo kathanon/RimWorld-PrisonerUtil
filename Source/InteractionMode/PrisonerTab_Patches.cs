@@ -11,17 +11,17 @@ namespace PrisonerUtil {
     [HarmonyPatch]
     public class PrisonerTab_Patches {
         private static readonly PrisonerInteractionModeDef Convert = 
-            PrisonerInteractionModeDefOf.Convert;
+            InteractionModes.Convert;
         private static readonly PrisonerInteractionModeDef ConvertThenRecruit =
-            DefDatabase<PrisonerInteractionModeDef>.GetNamed("kathanon-PrisonerUtil-ConvertThenRecruit");
+            InteractionModes.ConvertThenRecruit;
 
         private static bool replaceConvert = false;
 
         [HarmonyPrefix]
         [HarmonyPatch(typeof(ITab_Pawn_Visitor), "FillTab")]
         public static void FillTab_Pre() {
-            Pawn pawn = Find.Selector.SingleSelectedThing as Pawn;
-            if (pawn.guest.interactionMode == ConvertThenRecruit) {
+            if (Find.Selector.SingleSelectedThing is Pawn pawn
+                    && pawn.guest.interactionMode == ConvertThenRecruit) {
                 PrisonerInteractionModeDefOf.Convert = ConvertThenRecruit;
                 replaceConvert = true;
             }
@@ -32,6 +32,10 @@ namespace PrisonerUtil {
         public static void FillTab_Post() {
             if (replaceConvert) {
                 PrisonerInteractionModeDefOf.Convert = Convert;
+                replaceConvert = false;
+            }
+            if (Find.Selector.SingleSelectedThing is Pawn pawn) {
+                InteractionModes.Update(pawn);
             }
         }
     }

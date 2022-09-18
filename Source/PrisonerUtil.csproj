@@ -41,8 +41,8 @@
     <Reference Include="UnityEngine.UI" Private="False">
       <HintPath>$(RimWorld)\RimWorldWin64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
-    <Reference Include="VUIE" Private="False">
-      <HintPath>$(Steam)\steamapps\workshop\content\294100\2749945924\1.3\Assemblies\VUIE.dll</HintPath>
+    <Reference Include="FloatSubMenu" Private="False">
+      <HintPath>$(Steam)\steamapps\workshop\content\294100\2864015430\Assemblies\FloatSubMenu.dll</HintPath>
     </Reference>
     <!-- Other Dlls -->
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL" Private="False">
@@ -65,8 +65,11 @@
     <Compile Include="DressPrisoner\CompDressPrisoner.cs" />
     <Compile Include="DressPrisoner\DressPrisoner_Gizmos.cs" />
     <Compile Include="DressPrisoner\DressPrisoner_Patches.cs" />
+    <Compile Include="DressPrisoner\JobGiver_AttackDresser.cs" />
+    <Compile Include="DressPrisoner\MentalState_AttackDresser.cs" />
     <Compile Include="InteractionMode\InitialInteractionMode_Patches.cs" />
     <Compile Include="DressPrisoner\JobDriver_DressPrisoner.cs" />
+    <Compile Include="InteractionMode\InteractionModes.cs" />
     <Compile Include="InteractionMode\PrisonerTab_Patches.cs" />
     <Compile Include="CompUnreserve.cs" />
     <Compile Include="Resources.cs" />

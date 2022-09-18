@@ -10,6 +10,8 @@ namespace PrisonerUtil
         public const string MOD_IDENTIFIER = "kathanon.PrisonerUtil";
         public const string PREFIX = MOD_IDENTIFIER + ".";
 
+        public const string VUIE_ID = "vanillaexpanded.ui";
+
         // UI
         public static readonly string SetOwnerPrisoner          = (PREFIX + "SetOwnerPrisoner.desc"    ).Translate();
         public static readonly string ReservedForPrisoner_title = (PREFIX + "ReservedForPrisoner.title").Translate();
