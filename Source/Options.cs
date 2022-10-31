@@ -19,8 +19,8 @@ namespace PrisonerUtil {
         private static SettingHandle<string> initialModeColonist;
         private static SettingHandle<string> initialModeSlave;
 
-        private static ModeDef ModeFor(string name) => 
-            (name == DefaultInteraction) ? null : interactionModes[name];
+        private static ModeDef ModeFor(SettingHandle<string> name) => 
+            (name == null || name.Value == DefaultInteraction) ? null : interactionModes[name];
 
         public static ModeDef InitialInteractionModeStranger => ModeFor(initialModeStranger);
         public static ModeDef InitialInteractionModeColonist => ModeFor(initialModeColonist);

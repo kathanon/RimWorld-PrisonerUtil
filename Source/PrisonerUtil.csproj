@@ -4,6 +4,7 @@
   <PropertyGroup>
     <ModName>PrisonerUtil</ModName>
     <ModId>kathanon.PrisonerUtil</ModId>
+    <MultiVersion>true</MultiVersion>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
@@ -42,7 +43,7 @@
       <HintPath>$(RimWorld)\RimWorldWin64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
     <Reference Include="FloatSubMenu" Private="False">
-      <HintPath>$(Steam)\steamapps\workshop\content\294100\2864015430\Assemblies\FloatSubMenu.dll</HintPath>
+      <HintPath>$(Workshop)\2864015430\$(RimWorldVersion)\Assemblies\FloatSubMenu.dll</HintPath>
     </Reference>
     <!-- Other Dlls -->
     <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL" Private="False">
