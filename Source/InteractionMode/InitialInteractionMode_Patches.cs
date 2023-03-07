@@ -17,6 +17,7 @@ namespace PrisonerUtil {
         private static bool takeToBedActive = false;
         private static bool setGuestStatusActive = false;
         private static bool getTargetActive = false;
+        private static bool menuAdditionOverridden = false;
         private static Pawn target = null;
 
         private static readonly Dictionary<Pawn,PrisonerInteractionModeDef> desiredModes = 
@@ -25,7 +26,10 @@ namespace PrisonerUtil {
         private static Regex arrestRegex;
         private static Regex captureRegex;
         private static readonly List<PrisonerInteractionModeDef> interactions =
-            DefDatabase<PrisonerInteractionModeDef>.AllDefs.OrderBy(m => m.listOrder).ToList();
+            DefDatabase<PrisonerInteractionModeDef>.AllDefs
+                .OrderBy(m => m.listOrder)
+                .Where(FilterInteraction)
+                .ToList();
 
         private static Regex ArrestRegex  => MakeRegex("TryToArrest", ref arrestRegex);
         private static Regex CaptureRegex => MakeRegex("Capture",     ref captureRegex);
@@ -81,6 +85,8 @@ namespace PrisonerUtil {
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
         public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts, Vector3 clickPos, Pawn pawn) {
+            if (menuAdditionOverridden) return;
+
             for (int i = 0; i < opts.Count; i++) {
                 var option = opts[i];
                 string label = null;
@@ -90,7 +96,7 @@ namespace PrisonerUtil {
                     label = Strings.CaptureAndSet;
                 }
                 if (label != null) {
-                    opts.Insert(++i, InteractionMenuOption(label, option.action));
+                    opts.Insert(++i, InteractionSubMenu(label, option.action));
                 }
             }
         }
@@ -104,37 +110,36 @@ namespace PrisonerUtil {
             }
         }
 
-        private static FloatMenuOption InteractionMenuOption(string label, Action action) {
-            if (Main.VUIE_Active) {
-                return new FloatMenuOption(label + "...", () => DoInteractionMenu(action));
-            } else {
-                return new FloatSubMenu(label, InteractionOptions(action));
-            }
-        }
+        public static void OverrideMenuAddition(bool overridden = true)
+            => menuAdditionOverridden = overridden;
 
-        private static List<FloatMenuOption> InteractionOptions(Action action) =>
-            interactions
-                .Where(FilterInteraction)
-                .Select(m => InteractionMenuOption(action, m))
-                .ToList();
+        public static IEnumerable<PrisonerInteractionModeDef> Interactions => interactions;
 
-        private static bool FilterInteraction(PrisonerInteractionModeDef mode) =>
-            mode.allowInClassicIdeoMode || !Find.IdeoManager.classicMode;
+        public static FloatMenuOption InteractionSubMenu(string label, Action originalAction) 
+            => FloatSubMenu.CompatMMMCreate(label, InteractionOptions(originalAction));
 
-        private static void DoInteractionMenu(Action action) => 
-            Find.WindowStack.Add(new FloatMenu(InteractionOptions(action)));
+        public static List<FloatMenuOption> InteractionOptions(Action originalAction) 
+            => InteractionOptions(m => InteractionMenuOption(originalAction, m));
 
-        private static FloatMenuOption InteractionMenuOption(Action originalAction,
-                                                             PrisonerInteractionModeDef mode) {
-            Action action = delegate {
+        public static List<FloatMenuOption> InteractionOptions(
+                Func<PrisonerInteractionModeDef, FloatMenuOption> makeOption)
+            => interactions.Select(makeOption).ToList();
+
+        private static bool FilterInteraction(PrisonerInteractionModeDef mode) 
+            => mode.allowInClassicIdeoMode || !Find.IdeoManager.classicMode;
+
+        public static FloatMenuOption InteractionMenuOption(Action originalAction,
+                                                            PrisonerInteractionModeDef mode) {
+            return new FloatMenuOption(mode.LabelCap, Action);
+
+            void Action() {
                 getTargetActive = true;
                 originalAction();
                 getTargetActive = false;
                 if (target != null) {
                     desiredModes[target] = mode;
                 }
-            };
-            return new FloatMenuOption(mode.LabelCap, action);
+            }
         }
 
         private static void SetInitialInteractionMode(Pawn pawn) {

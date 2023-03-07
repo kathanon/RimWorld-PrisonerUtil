@@ -21,7 +21,7 @@ namespace PrisonerUtil {
 
             var thing = __instance;
             var comp = thing.TryGetComp<CompUnreserve>();
-            if (comp != null && thing.Position.IsInPrisonCell(thing.Map)) {
+            if (comp != null && thing.IsInPrisonCell()) {
                 yield return new Command_Toggle {
                     icon = Resources.PrisonerIcon,
                     isActive = comp.IsReserved,
@@ -40,10 +40,13 @@ namespace PrisonerUtil {
             if (!result && !forPrisoner) {
                 var comp = t.TryGetComp<CompUnreserve>();
                 if (comp != null) {
-                    return !comp.reserved;
+                    return !comp.Reserved;
                 }
             }
             return result;
         }
+
+        public static bool IsInPrisonCell(this Thing thing) 
+            => thing.Map != null && thing.Position.IsInPrisonCell(thing.Map);
     }
 }

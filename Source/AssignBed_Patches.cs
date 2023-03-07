@@ -42,19 +42,21 @@ namespace PrisonerUtil {
 
 
         // ----- Escort prisoner to assigned bed even if there is a free bed in same room. -----
-        [HarmonyPrefix]
+        [HarmonyPostfix]
         [HarmonyPatch(typeof(RestUtility),
                       nameof(RestUtility.FindBedFor),
                       new Type[] { typeof(Pawn), typeof(Pawn), typeof(bool), typeof(bool), typeof(GuestStatus?) })]
-        public static bool FindBedFor_Pre(Pawn sleeper, Pawn traveler, ref Thing __result) {
-            if (sleeper.IsPrisoner 
+        public static void FindBedFor_Pre(Pawn sleeper, Pawn traveler, ref Thing __result) {
+            if (__result == null) return;
+
+            var owned = sleeper.ownership?.OwnedBed;
+            if (__result != owned
+                && sleeper.IsPrisoner 
                 && sleeper == traveler 
-                && sleeper.ownership?.OwnedBed != null
-                && sleeper.ownership.OwnedBed.GetRoom() != sleeper.GetRoom()) {
+                && owned != null
+                && owned.GetRoom() != sleeper.GetRoom()) {
                 __result = null;
-                return false;
             }
-            return true;
         }
 
 

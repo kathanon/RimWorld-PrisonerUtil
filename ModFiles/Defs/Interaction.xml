@@ -8,6 +8,7 @@
     <allowOnWildMan>False</allowOnWildMan>
     <description>Wardens will first attempt to convert the prisoner to their ideoligion. Once converted, they will attempt to recruit the prisoner, reducing resistance as needed.</description>
     <allowInClassicIdeoMode>false</allowInClassicIdeoMode>
+    <hideIfNotRecruitable>true</hideIfNotRecruitable>
   </PrisonerInteractionModeDef>
 
   <WorkGiverDef>
