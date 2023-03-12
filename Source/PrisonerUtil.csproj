@@ -5,6 +5,8 @@
     <ModName>PrisonerUtil</ModName>
     <ModId>kathanon.PrisonerUtil</ModId>
     <MultiVersion>true</MultiVersion>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Release</Configuration>
@@ -15,6 +17,7 @@
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkVersion>v4.7.2</TargetFrameworkVersion>
     <TargetFrameworkProfile />
+    <LangVersion>11.0</LangVersion>
   </PropertyGroup>
   <!-- Import base build file -->
   <Import Project="RimWorld.targets" />
@@ -42,16 +45,17 @@
     <Reference Include="UnityEngine.UI" Private="False">
       <HintPath>$(RimWorld)\RimWorldWin64_Data\Managed\UnityEngine.UI.dll</HintPath>
     </Reference>
+    <!-- Mod Dlls -->
+    <Reference Include="0Harmony" Private="False">
+      <HintPath>$(HarmonyPath)</HintPath>
+    </Reference>
+    <Reference Include="HugsLib" Private="False">
+      <HintPath>$(HugsLibPath)</HintPath>
+    </Reference>
     <Reference Include="FloatSubMenu" Private="False">
-      <HintPath>$(Workshop)\2864015430\$(RimWorldVersion)\Assemblies\FloatSubMenu.dll</HintPath>
+      <HintPath>$(FloatSubMenuPath)</HintPath>
     </Reference>
-    <!-- Other Dlls -->
-    <Reference Include="0Harmony, Version=2.2.2.0, Culture=neutral, processorArchitecture=MSIL" Private="False">
-      <HintPath>..\packages\Lib.Harmony.2.2.2\lib\net472\0Harmony.dll</HintPath>
-    </Reference>
-    <Reference Include="HugsLib, Version=1.0.0.0, Culture=neutral, processorArchitecture=MSIL" Private="False">
-      <HintPath>..\packages\UnlimitedHugs.Rimworld.HugsLib.9.0.1\lib\net472\HugsLib.dll</HintPath>
-    </Reference>
+     <!-- Other Dlls -->
     <Reference Include="System" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -91,4 +95,12 @@
       <Link>%(RecursiveDir)%(Filename)%(Extension)</Link>
     </None>
   </ItemGroup>
+  <!-- Use PolySharp to enable runtime-agnostic language features -->
+  <Import Project="..\packages\PolySharp.1.10.0\build\PolySharp.targets" Condition="Exists('..\packages\PolySharp.1.10.0\build\PolySharp.targets')" />
+  <Target Name="EnsureNuGetPackageBuildImports" BeforeTargets="PrepareForBuild">
+    <PropertyGroup>
+      <ErrorText>This project references NuGet package(s) that are missing on this computer. Use NuGet Package Restore to download them.  For more information, see http://go.microsoft.com/fwlink/?LinkID=322105. The missing file is {0}.</ErrorText>
+    </PropertyGroup>
+    <Error Condition="!Exists('..\packages\PolySharp.1.10.0\build\PolySharp.targets')" Text="$([System.String]::Format('$(ErrorText)', '..\packages\PolySharp.1.10.0\build\PolySharp.targets'))" />
+  </Target>
 </Project>

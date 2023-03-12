@@ -30,6 +30,10 @@ namespace PrisonerUtil {
                 .OrderBy(m => m.listOrder)
                 .Where(FilterInteraction)
                 .ToList();
+        private static readonly List<PrisonerInteractionModeDef> interactionsNoBlood = 
+            interactions
+                .Where(x => !x.hideIfNoBloodfeeders)
+                .ToList();
 
         private static Regex ArrestRegex  => MakeRegex("TryToArrest", ref arrestRegex);
         private static Regex CaptureRegex => MakeRegex("Capture",     ref captureRegex);
@@ -84,7 +88,7 @@ namespace PrisonerUtil {
 
         [HarmonyPostfix]
         [HarmonyPatch(typeof(FloatMenuMakerMap), "AddHumanlikeOrders")]
-        public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts, Vector3 clickPos, Pawn pawn) {
+        public static void AddHumanlikeOrders_Post(List<FloatMenuOption> opts) {
             if (menuAdditionOverridden) return;
 
             for (int i = 0; i < opts.Count; i++) {
@@ -113,24 +117,39 @@ namespace PrisonerUtil {
         public static void OverrideMenuAddition(bool overridden = true)
             => menuAdditionOverridden = overridden;
 
-        public static IEnumerable<PrisonerInteractionModeDef> Interactions => interactions;
+        public static IEnumerable<PrisonerInteractionModeDef> Interactions 
+            => AnyBloodfeeders(Find.CurrentMap) ? interactions : interactionsNoBlood;
 
-        public static FloatMenuOption InteractionSubMenu(string label, Action originalAction) 
-            => FloatSubMenu.CompatMMMCreate(label, InteractionOptions(originalAction));
+        private static bool AnyBloodfeeders(Map map)
+            => map.mapPawns.FreeColonistsAndPrisoners.Any(x => x.IsBloodfeeder());
 
-        public static List<FloatMenuOption> InteractionOptions(Action originalAction) 
-            => InteractionOptions(m => InteractionMenuOption(originalAction, m));
+        public static FloatMenuOption InteractionSubMenu(
+                string label, Action originalAction, Action<Rect> onMouseOver = null, Pawn capturee = null) 
+            => FloatSubMenu.CompatMMMCreate(label, InteractionOptions(originalAction, onMouseOver, capturee));
+
+        public static List<FloatMenuOption> InteractionOptions(
+            Action originalAction, Action<Rect> onMouseOver = null, Pawn capturee = null) 
+            => InteractionOptions(m => InteractionMenuOption(originalAction, m, onMouseOver, capturee));
 
         public static List<FloatMenuOption> InteractionOptions(
                 Func<PrisonerInteractionModeDef, FloatMenuOption> makeOption)
-            => interactions.Select(makeOption).ToList();
+            => Interactions.Select(makeOption).ToList();
 
         private static bool FilterInteraction(PrisonerInteractionModeDef mode) 
             => mode.allowInClassicIdeoMode || !Find.IdeoManager.classicMode;
 
         public static FloatMenuOption InteractionMenuOption(Action originalAction,
-                                                            PrisonerInteractionModeDef mode) {
-            return new FloatMenuOption(mode.LabelCap, Action);
+                                                            PrisonerInteractionModeDef mode, 
+                                                            Action<Rect> onMouseOver = null, 
+                                                            Pawn capturee = null) {
+            return new FloatMenuOption(mode.LabelCap,
+                                       (capturee == null) ? Action : ActionKnownPawn,
+                                       mouseoverGuiAction: onMouseOver);
+
+            void ActionKnownPawn() {
+                originalAction();
+                desiredModes[capturee] = mode;
+            }
 
             void Action() {
                 getTargetActive = true;
