@@ -8,6 +8,7 @@ using System.Threading.Tasks;
 using UnityEngine;
 using Verse;
 using Verse.AI;
+using Verse.Noise;
 
 namespace PrisonerUtil {
     [HarmonyPatch]
@@ -23,11 +24,11 @@ namespace PrisonerUtil {
             var comp = thing.TryGetComp<CompUnreserve>();
             if (comp != null && thing.IsInPrisonCell()) {
                 yield return new Command_Toggle {
-                    icon = Resources.PrisonerIcon,
-                    isActive = comp.IsReserved,
+                    icon         = Resources.PrisonerIcon,
+                    isActive     = comp.IsReserved,
                     toggleAction = comp.Toggle,
                     defaultLabel = Strings.ReservedForPrisoner_title,
-                    defaultDesc = Strings.ReservedForPrisoner_desc,
+                    defaultDesc  = Strings.ReservedForPrisoner_desc,
                 };
             }
         }
@@ -47,6 +48,6 @@ namespace PrisonerUtil {
         }
 
         public static bool IsInPrisonCell(this Thing thing) 
-            => thing.Map != null && thing.Position.IsInPrisonCell(thing.Map);
+            => thing.Map != null && (thing.Position.GetRoomOrAdjacent(thing.Map)?.IsPrisonCell ?? false);
     }
 }
